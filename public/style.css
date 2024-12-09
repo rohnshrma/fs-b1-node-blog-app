@@ -1,0 +1,41 @@
+body {
+  min-height: 100vh;
+  background-image: url(https://cdn.pixabay.com/photo/2022/10/21/21/11/art-7537962_1280.jpg);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+.wrapper {
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+#compose-area {
+  padding: 2rem;
+  width: 40%;
+  margin: 6rem auto 0;
+}
+#blogs-area {
+  padding: 2rem;
+  width: 60%;
+  margin: 3rem auto 0;
+}
+
+#blog {
+  padding: 1rem;
+
+  border-bottom: 1.5px solid grey;
+}
+#blog:last-child {
+  border: none;
+}
+footer {
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}

@@ -1,0 +1,26 @@
+<%- include("partials/header") -%>
+
+    <div id="blogs-area" class="wrapper">
+        <% if (typeof blogs===typeof []){ %>
+
+            <% blogs.forEach(function(blogObj) { %>
+
+                <div id="blog" class="container ">
+                    <h1 class="display-4">
+                        <%= blogObj.title %>
+                    </h1>
+                    <p class="lead">
+                        <%= blogObj.content %>
+                    </p>
+                    <a href="delete/<%= blogObj.id %>" class="btn btn-danger">Delete</a>
+                </div>
+                <% }); %>
+
+                    <% }else{ %>
+                        <h2>
+                            <%= blogs %>
+                        </h2>
+                        <% } %>
+    </div>
+
+    <%- include("partials/footer") -%>
