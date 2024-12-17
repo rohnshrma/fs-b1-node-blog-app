@@ -1,51 +1,114 @@
 import express from "express";
+import mongoose, { mongo } from "mongoose";
 import bodyParser from "body-parser";
-import { v4 as uuidv4 } from "uuid";
+import { configDotenv } from "dotenv";
+import connectDB from "./utils/connection.js";
 
+configDotenv();
 const app = express();
 const PORT = 3000;
 
-var data = [];
+connectDB();
 
-// middlwares
+// schema
+const blogSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true, minLength: 20 },
+    content: { type: String, required: true, minLength: 100 },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+// model | collection
+const Blog = mongoose.model("blog", blogSchema);
+
 // bodyparser
 app.use(bodyParser.urlencoded({ extended: true }));
+// static files
 app.use(express.static("public"));
+// set view engine
 app.set("view engine", "ejs");
 
-// Routes
-// home / root route : "/"
+// ROUTES
+// HOME : ROOT : "/"
 app.route("/").get(function (req, res) {
   res.render("Home", {
     title: "Home",
     year: new Date().getFullYear(),
   });
 });
-
-// compose route : "/compose"
+// Compose route : "/compose"
 app
   .route("/compose")
   .get(function (req, res) {
     res.render("Compose", {
-      title: "Compose",
+      title: "Add New Blog",
       year: new Date().getFullYear(),
     });
   })
-  .post(function (req, res) {
-    console.log(req.body);
-    data.push({ id: uuidv4(), ...req.body });
-    console.log(data);
+  .post(async function (req, res) {
+    // creating a new mongodb doc | item
+
+    // console.log(req.body);
+
+    const { title, content } = req.body;
+
+    const newBlog = new Blog({ title, content });
+
+    try {
+      await newBlog.save();
+      console.log("added blog : ", newBlog);
+      res.redirect("/blogs");
+    } catch (err) {
+      res
+        .json({
+          error: err,
+          message: "Something went wrong while creating new blog",
+        })
+        .status(400);
+    }
+  });
+
+// BLOGS : "/blogs"
+app.route("/blogs").get(async function (req, res) {
+  let foundBlogs;
+
+  try {
+    foundBlogs = await Blog.find({});
+    res.render("Blogs", {
+      title: "Blogs Page",
+      year: new Date().getFullYear(),
+      blogs: foundBlogs.length > 0 ? foundBlogs : "No Blogs Found",
+    });
+  } catch (err) {
+    res
+      .json({
+        error: err,
+        message: "Something went wrong while fetching blogs from db",
+      })
+      .status(400);
+  }
+});
+
+app.route("/delete/:deleteId").get(async function (req, res) {
+  const deleteId = req.params.deleteId;
+
+  try {
+    const deletedBlog = await Blog.findByIdAndDelete(deleteId);
+    console.log("Deleted Blog =>", deletedBlog);
     res.redirect("/blogs");
-  });
-// blogs route : "/blogs"
-app.route("/blogs").get(function (req, res) {
-  res.render("Blogs", {
-    blogs: data.length > 0 ? data : "No Blogs Found",
-    title: "Blogs",
-    year: new Date().getFullYear(),
-  });
+  } catch (err) {
+    res
+      .json({
+        error: err,
+        message: "Something went wrong while fetching blogs from db",
+      })
+      .status(400);
+  }
 });
 
 app.listen(PORT, function () {
-  console.log("Server started on port :", PORT);
+  console.log("Server started on port ", PORT);
 });
