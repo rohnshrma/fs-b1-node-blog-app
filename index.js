@@ -7,6 +7,7 @@ import bcrypt from "bcryptjs";
 import session from "express-session";
 import passport from "passport";
 import LocalStrategy from "passport-local";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 
 configDotenv();
 const app = express();
@@ -26,7 +27,8 @@ const blogSchema = new mongoose.Schema(
 const userSchema = new mongoose.Schema(
   {
     username: { type: String, required: true, unique: true },
-    password: { type: String, required: true, minLength: 8 },
+    password: String,
+    googleId: { type: String, unique: true },
   },
   { timestamps: true }
 );
@@ -70,6 +72,33 @@ passport.use(
   })
 );
 
+// google oauth 2.0 strategy
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: process.env.GOOGLE_CALLBACK_URL,
+    },
+    async (accessToken, refreshToken, profile, cb) => {
+      try {
+        let user = await User.findOne({ googleId: profile.id });
+        if (!user) {
+          user = new User({
+            username: profile.displayName,
+            googleId: profile.id,
+          });
+          await user.save();
+          return cb(null, user);
+        }
+      } catch (err) {
+        return cb(err);
+      }
+    }
+  )
+);
+
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
@@ -92,6 +121,20 @@ const isAuthenticated = (req, res, next) => {
 };
 
 // Routes
+
+app.get(
+  "/auth/google",
+  passport.authenticate("google", { scope: ["profile"] })
+);
+
+app.get(
+  "/auth/google/success",
+  passport.authenticate("google", {
+    successRedirect: "/compose",
+    failureRedirect: "/login",
+  })
+);
+
 app
   .route("/register")
   .get((req, res) => {
