@@ -17,10 +17,12 @@
     "ejs": "^3.1.10",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
+    "libphonenumber-js": "^1.11.17",
     "mongoose": "^8.9.1",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",
+    "twilio": "^5.4.2",
     "uuid": "^11.0.3"
   },
   "description": ""

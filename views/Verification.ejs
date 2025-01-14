@@ -1,0 +1,16 @@
+<%- include("partials/header") -%>
+
+    <div id="otp-area" class="wrapper">
+        <h2 class="mb-3 text-center">Verify OTP</h2>
+
+        <form id="otp-form" method="POST" action="/verify-otp">
+            <div class="form-group">
+                <input type="text" name="otp" class="form-control" placeholder="Enter OTP" required />
+                <!-- Hidden input to store phone number -->
+                <input type="hidden" name="phone" value="<%= phone %>" />
+            </div>
+            <button type="submit" class="btn btn-block btn-danger">Verify OTP</button>
+        </form>
+    </div>
+
+    <%- include("partials/footer") -%>
